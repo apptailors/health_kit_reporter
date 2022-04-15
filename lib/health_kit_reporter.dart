@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
+import 'package:health_kit_reporter/model/payload/electrocardiogram_voltage_measurement.dart';
 
 import 'model/payload/activity_summary.dart';
 import 'model/payload/category.dart';
@@ -45,6 +46,7 @@ import 'model/update_frequency.dart';
 /// - [categoryQuery]
 /// - [workoutQuery]
 /// - [electrocardiogramQuery]
+/// - [electrocardiogramVoltageMeasurementQuery]
 /// - [sampleQuery]
 /// - [statisticsQuery]
 /// - [heartbeatSeriesQuery]
@@ -416,6 +418,29 @@ class HealthKitReporter {
     final electrocardiograms = <Electrocardiogram>[];
     for (final Map<String, dynamic> map in list) {
       final electrocardiogram = Electrocardiogram.fromJson(map);
+      electrocardiograms.add(electrocardiogram);
+    }
+    return electrocardiograms;
+  }
+
+  /// Returns [ElectrocardiogramVoltageMeasurement] samples for the provided
+  /// time interval predicate [predicate].
+  ///
+  static Future<List<ElectrocardiogramVoltageMeasurement>>
+      electrocardiogramVoltageMeasurementQuery(String identifier) async {
+    final arguments = <String, dynamic>{
+      'identifier': identifier,
+    };
+    final result = await _methodChannel.invokeMethod(
+      'electrocardiogramVoltageMeasurementQuery',
+      arguments,
+    );
+    print(result);
+    final List<dynamic> list = jsonDecode(result);
+    final electrocardiograms = <ElectrocardiogramVoltageMeasurement>[];
+    for (final Map<String, dynamic> map in list) {
+      final electrocardiogram =
+          ElectrocardiogramVoltageMeasurement.fromJson(map);
       electrocardiograms.add(electrocardiogram);
     }
     return electrocardiograms;
