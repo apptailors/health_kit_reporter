@@ -1,5 +1,6 @@
 import Flutter
 import HealthKitReporter
+import HealthKit
 
 public class SwiftHealthKitReporterPlugin: NSObject, FlutterPlugin {
     private enum Method: String {
@@ -10,6 +11,7 @@ public class SwiftHealthKitReporterPlugin: NSObject, FlutterPlugin {
         case categoryQuery
         case workoutQuery
         case electrocardiogramQuery
+        case electrocardiogramVoltageMeasurementQuery
         case sampleQuery
         case statisticsQuery
         case heartbeatSeriesQuery
@@ -160,6 +162,16 @@ extension SwiftHealthKitReporterPlugin {
                 return
             }
             electrocardiogramQuery(
+                reporter: reporter,
+                arguments: arguments,
+                result: result
+            )
+        case .electrocardiogramVoltageMeasurementQuery:
+            guard let arguments = call.arguments as? [String: Any] else {
+                throwNoArgumentsError(result: result)
+                return
+            }
+            electrocardiogramVoltageMeasurementQuery(
                 reporter: reporter,
                 arguments: arguments,
                 result: result
@@ -609,6 +621,69 @@ extension SwiftHealthKitReporterPlugin {
                             FlutterError(
                                 code: "ElectrocardiogramQuery",
                                 message: "Error in json encoding of electrocardiograms: \(electrocardiograms)",
+                                details: error
+                            )
+                        )
+                    }
+                }
+                reporter.manager.executeQuery(query)
+            } catch {
+                result(
+                    FlutterError(
+                        code: className,
+                        message: "Error electrocardiograms query initialization",
+                        details: error
+                    )
+                )
+            }
+        } else {
+            result(
+                FlutterError(
+                    code: className,
+                    message: "Error in platform version.",
+                    details: "Electrocardiogram query is available for iOS 14."
+                )
+            )
+        }
+    }
+    private func electrocardiogramVoltageMeasurementQuery(
+        reporter: HealthKitReporter,
+        arguments: [String: Any],
+        result: @escaping FlutterResult
+    ) {
+        guard
+            let identifier = arguments["identifier"] as? String,
+            let uuid = UUID(uuidString: identifier)
+        else {
+            throwParsingArgumentsError(result: result, arguments: arguments)
+            return
+        }
+        let predicate = HKQuery.predicateForObject(with: uuid)
+        if #available(iOS 14.0, *) {
+            do {
+                var volts = [Electrocardiogram.VoltageMeasurement]()
+                let query = try reporter.reader.electrocardiogramVoltageMeasurementQuery(
+                    predicate: predicate
+                ) { measurement, done, error in
+                    if let measurement = measurement {
+                        volts.append(measurement)
+                    } else if done {
+                        do {
+                            result(try volts.encoded())
+                        } catch {
+                            result(
+                                FlutterError(
+                                    code: "ElectrocardiogramVoltageMeasurementQuery",
+                                    message: "Error in json encoding of voltage measurement: \(volts)",
+                                    details: error
+                                )
+                            )
+                        }
+                    } else if let error = error {
+                        result(
+                            FlutterError(
+                                code: "ElectrocardiogramVoltageMeasurementQuery",
+                                message: "Error in json encoding of voltage measurement",
                                 details: error
                             )
                         )
@@ -1234,8 +1309,8 @@ extension SwiftHealthKitReporterPlugin {
                     try Category.make(from: $0)
                 },
                 from: device != nil
-                    ? try Device.make(from: device!)
-                    : nil,
+                ? try Device.make(from: device!)
+                : nil,
                 to: try Workout.make(from: workout)
             ) { (success, error) in
                 guard error == nil else {
