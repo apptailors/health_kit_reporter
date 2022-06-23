@@ -5,16 +5,13 @@ PODS:
   - health_kit_reporter (2.0.4):
     - Flutter
     - HealthKitReporter
-  - HealthKitReporter (1.6.9)
+  - HealthKitReporter (1.7.0)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_local_notifications (from `.symlinks/plugins/flutter_local_notifications/ios`)
   - health_kit_reporter (from `.symlinks/plugins/health_kit_reporter/ios`)
-
-SPEC REPOS:
-  trunk:
-    - HealthKitReporter
+  - HealthKitReporter (from `https://github.com/apptailors/HealthKitReporter.git`)
 
 EXTERNAL SOURCES:
   Flutter:
@@ -23,13 +20,20 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_local_notifications/ios"
   health_kit_reporter:
     :path: ".symlinks/plugins/health_kit_reporter/ios"
+  HealthKitReporter:
+    :git: https://github.com/apptailors/HealthKitReporter.git
+
+CHECKOUT OPTIONS:
+  HealthKitReporter:
+    :commit: 19ca2b94c9e5ea8ec060e84cb18bfe6501f7b854
+    :git: https://github.com/apptailors/HealthKitReporter.git
 
 SPEC CHECKSUMS:
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   health_kit_reporter: d88d6d571215f7eaf4dc7412e551e139080681cd
-  HealthKitReporter: 655b234e8e6e6097fe5f05c27e67df5a99771501
+  HealthKitReporter: c47cb09099b218c2717b8c3b884ee683edf57d95
 
-PODFILE CHECKSUM: a75497545d4391e2d394c3668e20cfb1c2bbd4aa
+PODFILE CHECKSUM: cc0628ebaafc41553e4b6f2f0592b70e105960dc
 
-COCOAPODS: 1.11.2
+COCOAPODS: 1.11.3
