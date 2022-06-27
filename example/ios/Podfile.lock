@@ -5,7 +5,7 @@ PODS:
   - health_kit_reporter (2.0.4):
     - Flutter
     - HealthKitReporter
-  - HealthKitReporter (1.7.0)
+  - HealthKitReporter (1.7.1)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -25,14 +25,14 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   HealthKitReporter:
-    :commit: 19ca2b94c9e5ea8ec060e84cb18bfe6501f7b854
+    :commit: e9c126d6b3c1a505150b904add70d4d5b1d924d2
     :git: https://github.com/apptailors/HealthKitReporter.git
 
 SPEC CHECKSUMS:
   Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   flutter_local_notifications: 0c0b1ae97e741e1521e4c1629a459d04b9aec743
   health_kit_reporter: d88d6d571215f7eaf4dc7412e551e139080681cd
-  HealthKitReporter: c47cb09099b218c2717b8c3b884ee683edf57d95
+  HealthKitReporter: 0e9ecb4325c38d5336aa52436db81d0f28acd992
 
 PODFILE CHECKSUM: cc0628ebaafc41553e4b6f2f0592b70e105960dc
 
