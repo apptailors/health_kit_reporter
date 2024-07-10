@@ -6,3 +6,6 @@
 
 build/
 pubspec.lock
+
+# FVM Version Cache
+.fvm/
