@@ -7,10 +7,12 @@
 
 import Flutter
 import HealthKitReporter
+import HealthKit
 
 // MARK: - MethodCall
 extension SwiftHealthKitReporterPlugin {
     private enum Method: String {
+        case isAvailable
         case requestAuthorization
         case preferredUnits
         case characteristicsQuery
@@ -38,16 +40,6 @@ extension SwiftHealthKitReporterPlugin {
     }
 
     public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
-        guard let reporter = self.reporter else {
-            result(
-                FlutterError(
-                    code: className,
-                    message: "Reporter is nil",
-                    details: nil
-                )
-            )
-            return
-        }
         guard let method = Method(rawValue: call.method) else {
             result(
                 FlutterError(
@@ -58,7 +50,26 @@ extension SwiftHealthKitReporterPlugin {
             )
             return
         }
+
+        if method == .isAvailable {
+            result(HealthKitReporter.isHealthDataAvailable)
+            return
+        }
+
+        guard let reporter = self.reporter else {
+            result(
+                FlutterError(
+                    code: className,
+                    message: "HealthKit is not available",
+                    details: nil
+                )
+            )
+            return
+        }
+
         switch method {
+        case .isAvailable:
+            result(HealthKitReporter.isHealthDataAvailable)
         case .requestAuthorization:
             guard let arguments = call.arguments as? [String: [String]] else {
                 throwNoArgumentsError(result: result)
@@ -102,7 +113,7 @@ extension SwiftHealthKitReporterPlugin {
                 result: result
             )
         case .workoutQuery:
-            guard let arguments = call.arguments as? [String: Double] else {
+            guard let arguments = call.arguments as? [String: Any] else {
                 throwNoArgumentsError(result: result)
                 return
             }
@@ -479,19 +490,34 @@ extension SwiftHealthKitReporterPlugin {
     }
     private func workoutQuery(
         reporter: HealthKitReporter,
-        arguments: [String: Double],
+        arguments: [String: Any],
         result: @escaping FlutterResult
     ) {
         guard
-            let startTimestamp = arguments["startTimestamp"],
-            let endTimestamp = arguments["endTimestamp"]
+            let startTimestamp = arguments["startTimestamp"] as? Double,
+            let endTimestamp = arguments["endTimestamp"] as? Double,
+            let option = arguments["singleQueryOption"] as? String?
         else {
             throwParsingArgumentsError(result: result, arguments: arguments)
             return
         }
+        lazy var hkOptions:HKQueryOptions = {
+            if (option != nil) {
+                if (option == "strictStartDate") {
+                    return [.strictStartDate]
+                } else if (option == "strictEndDate") {
+                    return [.strictEndDate]
+                } else if (option == "notStrict") {
+                    return []
+                }
+            }
+            // Default to both being strict
+            return [.strictStartDate, .strictEndDate]
+        }()
         let predicate = NSPredicate.samplesPredicate(
             startDate: Date.make(from: startTimestamp),
-            endDate: Date.make(from: endTimestamp)
+            endDate: Date.make(from: endTimestamp),
+            options: hkOptions
         )
         do {
             let query = try reporter.reader.workoutQuery(
@@ -1540,4 +1566,3 @@ extension SwiftHealthKitReporterPlugin {
         )
     }
 }
-
